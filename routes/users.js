@@ -24,6 +24,9 @@ router.post("/", async (req, res) => {
     })
     await user.save()
 
+    const token = user.generateAuthToken()
+    res.header("x-auth-token", token).send({ _id: user._id, name: user.name })
+
     res.send(user)
 })
 
@@ -38,3 +41,4 @@ router.delete("/:id", async (req, res) => {
 
 
 module.exports = router
+
