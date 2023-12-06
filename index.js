@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const users = require("./routes/users")
 const messages = require("./routes/messages")
+const auth = require("./routes/auth")
 const express = require('express');
 const config = require("config")
 const app = express()
@@ -15,6 +16,7 @@ if (!config.get("jwtPrivateKey")) throw new Error("FATAL ERROR: jwtPrivateKey is
 app.use(express.json())
 app.use("/api/users", users)
 app.use("/api/messages", messages)
+app.use("/api/auth", auth)
     
 
 app.get("/", (req, res) => {
