@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema({
         required: true,
         minlenght: 1,
         maxlenght: 1000,
-    }
+    },
 })
 
 const Message = mongoose.model("message", messageSchema)
