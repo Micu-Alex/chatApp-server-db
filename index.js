@@ -46,10 +46,8 @@ io.on('connection', async (socket) => {
     try {
       result = await message.save();
     } catch (err) {
-      console.error('Error saving message:', err);
     }
     io.emit('chat message', message.message, result._id);
-    console.log("send:", result._id) ;
     });
 
 
@@ -57,7 +55,6 @@ io.on('connection', async (socket) => {
     if (!socket.recovered) {
       try {
         const serverOffset = socket.handshake.auth.serverOffset || null;
-        console.log("last:", socket.handshake.auth.serverOffset);
 
         const query = serverOffset ? { _id: { $gt: serverOffset } } : {};
         const messages = await Message.find(query).lean(); 
