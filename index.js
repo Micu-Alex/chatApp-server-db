@@ -10,7 +10,7 @@ const { createServer } = require('node:http')
 const { Server } = require("socket.io");
 
 //temp improsts
-const {Message, validate} = require("./models/message")
+const {Message} = require("./models/message")
 
 const app = express()
 const server = createServer(app);

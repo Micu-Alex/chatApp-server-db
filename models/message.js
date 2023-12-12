@@ -14,12 +14,4 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model("message", messageSchema)
 
-const ValidateMessage = (message) => {
-    const schema = Joi.object({
-        message: Joi.string().min(1).max(1000).required()
-    })
-    return schema.validate(message)
-}
-
-exports.validate = ValidateMessage
 exports.Message = Message
