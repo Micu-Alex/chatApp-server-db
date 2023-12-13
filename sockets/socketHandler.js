@@ -1,12 +1,16 @@
 const { Server } = require("socket.io");
 const { Message } = require("../models/message");
 const { User } = require("../models/user");
+const auth = require("../middleware/auth");
 
 function handleSocket(server) {
   const io = new Server(server, {
     connectionStateRecovery: {}
   });
 
+  io.use((socket, next) => {
+    auth(socket, next);
+  });
 
   io.on('connection', async (socket) => {
     socket.on('chat message', async (msg) => {

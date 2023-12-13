@@ -2,17 +2,19 @@ const jwt = require("jsonwebtoken")
 const config = require("config")
 
 
-module.exports = function (req, res, next) {
-    const token = req.header("x-auth-token")
-    if (!token) return res.status(401).send("Acces denied. No token provided.")
+module.exports = function (socket, next) {
+    const token = socket.handshake.auth.token;
 
-    try {
-        const decoded = jwt.verify(token, config.get("jwtPrivateKey"))
-        req.user = decoded
-        next()
+    if (!token) {
+        return next(new Error('Authentication error: No token provided'));
     }
-    catch (ex) {
-        res.status(400).send("invalid token")
+
+     try {
+        const decoded = jwt.verify(token, config.get('jwtPrivateKey'));
+        socket.decoded = decoded; // Attach decoded user info to the socket for later use
+        next();
+    } catch (err) {
+        return next(new Error('Authentication error: Invalid token'));
     }
 }
 

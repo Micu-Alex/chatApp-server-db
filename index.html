@@ -24,9 +24,11 @@
     </form>
       <script src="/socket.io/socket.io.js"></script>
     <script>
+      const token = localStorage.getItem('token');
       const socket = io({
         auth: {
-          serverOffset: 0
+          serverOffset: 0,
+          token: token
         }
       });
     
@@ -50,6 +52,7 @@
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;
   });
+  
 
   //disconect ------------------------------------------------
        const toggleButton = document.getElementById('toggle-btn');
