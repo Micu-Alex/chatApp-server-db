@@ -42,6 +42,10 @@ io.on('connection', async (socket) => {
   socket.on('chat message', async (msg) => {
 
     const user = await User.findOne({ name: "ionut " })
+    if (!user) {
+      console.error('User not found');
+      return;
+    }
     const message = new Message({message: msg, user: {username: user.name}})
 
 
