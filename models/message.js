@@ -10,6 +10,9 @@ const messageSchema = new mongoose.Schema({
         minlenght: 1,
         maxlenght: 1000,
     },
+    user: {
+        username: String,
+      }
 })
 
 const Message = mongoose.model("message", messageSchema)

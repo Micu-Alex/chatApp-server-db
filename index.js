@@ -11,6 +11,7 @@ const { Server } = require("socket.io");
 
 //temp improsts
 const {Message} = require("./models/message")
+const {User} = require("./models/user")
 
 const app = express()
 const server = createServer(app);
@@ -40,14 +41,15 @@ app.get('/', (req, res) => {
 io.on('connection', async (socket) => {
   socket.on('chat message', async (msg) => {
 
-    const message = new Message({message: msg})
+    const user = await User.findOne({ name: "ionut " })
+    const message = new Message({message: msg, user: {username: user.name}})
 
 
     try {
       result = await message.save();
     } catch (err) {
     }
-    io.emit('chat message', message.message, result._id);
+    io.emit('chat message', message, result._id);
     });
 
 
@@ -60,7 +62,7 @@ io.on('connection', async (socket) => {
         const messages = await Message.find(query).lean(); 
 
         messages.forEach((message) => {
-          socket.emit('chat message', message.message, message._id); 
+          socket.emit('chat message', message, message._id); 
         });
 
         socket.recovered = true; 
