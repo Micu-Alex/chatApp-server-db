@@ -5,16 +5,9 @@ const express = require('express');
 const config = require("config")
 const { join } = require('node:path');
 const { createServer } = require('node:http')
-
 const handleSocket = require('./sockets/socketHandler');
-
-//temp improsts
-const {Message} = require("./models/message")
-const {User} = require("./models/user")
-
 const app = express()
 const server = createServer(app);
-
 
 
 mongoose.connect("mongodb://127.0.0.1/whatsapp-copy")
