@@ -60,7 +60,6 @@ io.on('connection', async (socket) => {
         const messages = await Message.find(query).lean(); 
 
         messages.forEach((message) => {
-          console.log("recovered:", message._id);
           socket.emit('chat message', message.message, message._id); 
         });
 
