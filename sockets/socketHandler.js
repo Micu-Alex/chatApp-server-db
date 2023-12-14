@@ -13,9 +13,10 @@ function handleSocket(server) {
   });
 
   io.on('connection', async (socket) => {
+    const name = socket.decoded.name;
     socket.on('chat message', async (msg) => {
   
-      const user = await User.findOne({ name: "ionut " })
+      const user = await User.findOne({ name: name })
       if (!user) {
         console.error('User not found');
         return;
