@@ -62,17 +62,16 @@
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;
   });
-  // Socket event handling for users
-  socket.on('users', (users) => {
-      const usersList = document.getElementById('users-list');
-      console.log(users);
+    // Socket event handling for users
+      socket.on('users', (users) => {
+        const usersList = document.getElementById('users-list');
+    
+        users.forEach((user) => {
+          user.self = user.userID === socket.id;
 
-      users.forEach((user) => {
-        user.self = user.userID === socket.id;
-
-        const li = document.createElement('li');
-        li.textContent = user.self ? `You (${user.username})` : user.username;
-        usersList.appendChild(li);
+          const li = document.createElement('li');
+          li.textContent = user.self ? `You (${user.username})` : user.username;
+          usersList.appendChild(li);
       });
     });
 
