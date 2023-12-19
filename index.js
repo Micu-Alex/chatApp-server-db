@@ -33,6 +33,6 @@ app.get('/login', (req, res) => {
 handleSocket(server) 
 
 
-
-server.listen(3000, () => console.log("app listening on port 3000"))
+const port = 3000
+server.listen(port, () => console.log("app listening on port port"))
 
