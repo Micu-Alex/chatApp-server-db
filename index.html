@@ -14,10 +14,28 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages > li { padding: 0.5rem 1rem; }
       #messages > li:nth-child(odd) { background: #efefef; }
+
+      #users-list{ list-style-type: none; margin: 0; padding: 0; }
+      ul:before{
+          content:attr(aria-label);
+          font-size:120%;
+          font-weight:bold;
+          margin-left: 5px;
+      }
+      .user-item {
+        padding: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .user-item:hover {
+        background-color: lightgray;
+      }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
+    <ul aria-label="Users:" id="users-list"></ul>
+    <ul  aria-label="Messages:" id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
       <button id="toggle-btn">Disconnect</button>
@@ -35,6 +53,7 @@
       const form = document.getElementById('form');
       const input = document.getElementById('input');
       const messages = document.getElementById('messages');
+      const usersList = document.getElementById('users-list');
     
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -52,6 +71,34 @@
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;
   });
+  //listing users
+    socket.on("users", (users) => {
+      users.forEach((user) => {
+        user.self = user.userID === "65721fafca72a81c244a8d00";
+      });
+      // put the current user first, and then sort by username
+      users.sort((a, b) => {
+        if (a.self !== b.self) {
+          return a.self ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+      
+      usersList.innerHTML = ''
+      users.forEach((user) => {
+        const item = document.createElement('li');
+        if (user.self) {
+          item.textContent = `${user.name} (you)`;
+        } else {
+          item.textContent = user.name;
+        }
+        item.classList.add('user-item')
+        item.addEventListener('click', () => {
+         console.log(user.userID);
+        });
+        usersList.appendChild(item);
+      });
+    })
   
 
   //disconect ------------------------------------------------

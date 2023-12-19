@@ -49,6 +49,15 @@ function handleSocket(server) {
           console.error('Error retrieving messages:', err);
         }
     }
+    //listing the users
+    const users = [];
+    for (let [id, socket] of io.of("/").sockets) {
+      users.push({
+        userID: socket.decoded._id,
+        name: socket.decoded.name,
+      });
+    }
+    socket.emit("users", users);
   });
 }
 
