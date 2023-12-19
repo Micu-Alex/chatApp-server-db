@@ -26,6 +26,8 @@ function handleSocket(server) {
 
   io.on('connection', async (socket) => {
     const name = socket.decoded.name;
+
+    socket.join(socket.decoded._id);
     socket.on('chat message', async (msg) => {
   
       const user = await User.findOne({ name: name })
@@ -70,7 +72,16 @@ function handleSocket(server) {
       });
     }
     socket.emit("users", users);
-  });
+
+    socket.on('userClicked', (data) => {
+      const userID = data.userID;
+    
+      console.log(`User clicked with ID: ${userID}`);
+    
+      // Emit a message specifically to the room associated with the clicked user's ID
+      socket.to(userID).emit('chat message',{user:{username: "madalin" } , message: "first private message"} ); // Modify this with your actual message content
+    });
+  }); 
 }
 
 module.exports = handleSocket;

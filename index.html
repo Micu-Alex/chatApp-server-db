@@ -55,6 +55,7 @@
       const messages = document.getElementById('messages');
       const usersList = document.getElementById('users-list');
     
+      //sending message
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
@@ -81,7 +82,6 @@
         if (a.self !== b.self) {
           return a.self ? -1 : 1;
         }
-        return a.name.localeCompare(b.name);
       });
       
       usersList.innerHTML = ''
@@ -94,11 +94,18 @@
         }
         item.classList.add('user-item')
         item.addEventListener('click', () => {
-         console.log(user.userID);
+          socket.emit('userClicked', { userID: user.userID });
         });
         usersList.appendChild(item);
       });
     })
+
+    socket.on('userClicked', (message) => {
+    const item = document.createElement('li');
+    item.textContent = message;
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  });
   
 
   //disconect ------------------------------------------------
