@@ -12,6 +12,18 @@ function handleSocket(server) {
     auth(socket, next);
   });
 
+  io.on("connection", (socket) => {
+    const users = [];
+    for (let [id, socket] of io.of("/").sockets) {
+      users.push({
+        userID: id,
+        username: socket.decoded.name,
+      });
+    }
+    socket.emit("users", users);
+    // ...
+  });
+
   io.on('connection', async (socket) => {
     const name = socket.decoded.name;
     socket.on('chat message', async (msg) => {
