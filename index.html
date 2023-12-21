@@ -52,16 +52,29 @@
     
       const form = document.getElementById('form');
       const input = document.getElementById('input');
+      input.disabled = true;
       const messages = document.getElementById('messages');
       const usersList = document.getElementById('users-list');
-    
+      let selectedUser = null
+
       //sending message
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-          socket.emit('chat message', input.value);
+          const toUserID = selectedUser 
+          console.log(toUserID);
+          socket.emit('chat message', { msg: input.value, toUserID });
           input.value = '';
         }
+      });
+
+      usersList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('user-item')) {
+            input.disabled = false
+        } else {
+          input.disabled = true;
+        }
+        
       });
 
       socket.on('chat message', (data, serverOffset) => {
@@ -92,20 +105,13 @@
         } else {
           item.textContent = user.name;
         }
-        item.classList.add('user-item')
         item.addEventListener('click', () => {
-          socket.emit('userClicked', { userID: user.userID });
+            selectedUser = user.userID; 
         });
+        item.classList.add('user-item')
         usersList.appendChild(item);
       });
     })
-
-    socket.on('userClicked', (message) => {
-    const item = document.createElement('li');
-    item.textContent = message;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
   
 
   //disconect ------------------------------------------------

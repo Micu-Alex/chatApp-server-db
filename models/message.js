@@ -10,7 +10,10 @@ const messageSchema = new mongoose.Schema({
     },
     user: {
         username: String,
-      }
+    },
+    toUser: {
+        username: String,
+    } 
 })
 
 const Message = mongoose.model("message", messageSchema)

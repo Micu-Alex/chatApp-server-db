@@ -28,41 +28,51 @@ function handleSocket(server) {
     const name = socket.decoded.name;
 
     socket.join(socket.decoded._id);
-    socket.on('chat message', async (msg) => {
+    socket.on('chat message', async (data) => {
+      const { msg, toUserID } = data;
   
-      const user = await User.findOne({ name: name })
-      if (!user) {
-        console.error('User not found');
+      const sender = await User.findOne({ name: name })
+      const receiver = await User.findById(toUserID);
+      if (!sender || !receiver) {
+        console.error('Sender or receiver not found');
         return;
       }
-      const message = new Message({message: msg, user: {username: user.name}})
+      const message = new Message({
+        message: msg, 
+        user: {username: sender.name},
+        toUser: { username: receiver.name}
+      })
   
   
       try {
         result = await message.save();
+        io.to(toUserID).to(socket.decoded._id).emit('chat message', { user: { username: sender.name }, message: msg });
       } catch (err) {
+        console.error('Error saving message:', err);
       }
-      io.emit('chat message', message, result._id);
       });
   
   
+      //remake this part to support private messageing 
         // Emit previous messages upon a new connection
-      if (!socket.recovered) {
-        try {
-          const serverOffset = socket.handshake.auth.serverOffset || null;
+    //   if (!socket.recovered) {
+    //     try {
+    //       const serverOffset = socket.handshake.auth.serverOffset || null;
   
-          const query = serverOffset ? { _id: { $gt: serverOffset } } : {};
-          const messages = await Message.find(query).lean(); 
+    //       const query = serverOffset ? { _id: { $gt: serverOffset } } : {};
+    //       const messages = await Message.find(query).lean(); 
   
-          messages.forEach((message) => {
-            socket.emit('chat message', message, message._id); 
-          });
+    //       messages.forEach((message) => {
+    //         socket.emit('chat message', message, message._id); 
+    //       });
   
-          socket.recovered = true; 
-        } catch (err) {
-          console.error('Error retrieving messages:', err);
-        }
-    }
+    //       socket.recovered = true; 
+    //     } catch (err) {
+    //       console.error('Error retrieving messages:', err);
+    //     }
+    // }
+
+
     //listing the users
     const users = [];
     for (let [id, socket] of io.of("/").sockets) {
@@ -72,15 +82,6 @@ function handleSocket(server) {
       });
     }
     socket.emit("users", users);
-
-    socket.on('userClicked', (data) => {
-      const userID = data.userID;
-    
-      console.log(`User clicked with ID: ${userID}`);
-    
-      // Emit a message specifically to the room associated with the clicked user's ID
-      io.to(userID).to(socket.decoded._id).emit('chat message',{user:{username: "madalin" } , message: "first private message"} ); // Modify this with your actual message content
-    });
   }); 
 }
 
