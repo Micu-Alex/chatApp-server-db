@@ -79,7 +79,7 @@ function handleSocket(server) {
       console.log(`User clicked with ID: ${userID}`);
     
       // Emit a message specifically to the room associated with the clicked user's ID
-      socket.to(userID).emit('chat message',{user:{username: "madalin" } , message: "first private message"} ); // Modify this with your actual message content
+      io.to(userID).to(socket.decoded._id).emit('chat message',{user:{username: "madalin" } , message: "first private message"} ); // Modify this with your actual message content
     });
   }); 
 }
