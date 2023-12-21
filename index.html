@@ -86,9 +86,9 @@
         socket.auth.serverOffset = serverOffset;
   });
   //listing users
-    socket.on("users", (users) => {
+    socket.on("users", (users, test) => {
       users.forEach((user) => {
-        user.self = user.userID === "65721fafca72a81c244a8d00";
+        user.self = user.userID === test;
       });
       // put the current user first, and then sort by username
       users.sort((a, b) => {

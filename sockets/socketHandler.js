@@ -74,6 +74,7 @@ function handleSocket(server) {
 
 
     //listing the users
+    const test = socket.decoded._id
     const users = [];
     for (let [id, socket] of io.of("/").sockets) {
       users.push({
@@ -81,7 +82,7 @@ function handleSocket(server) {
         name: socket.decoded.name,
       });
     }
-    socket.emit("users", users);
+    socket.emit("users", users, test);
   }); 
 }
 
