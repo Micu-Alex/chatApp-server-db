@@ -12,26 +12,15 @@ function handleSocket(server) {
     auth(socket, next);
   });
 
-  io.on("connection", (socket) => {
-    const users = [];
-    for (let [id, socket] of io.of("/").sockets) {
-      users.push({
-        userID: id,
-        username: socket.decoded.name,
-      });
-    }
-    socket.emit("users", users);
-    // ...
-  });
 
   io.on('connection', async (socket) => {
-    const name = socket.decoded.name;
+    const userID = socket.decoded._id;
 
-    socket.join(socket.decoded._id);
+    socket.join(userID);
     socket.on('chat message', async (data) => {
       const { msg, toUserID } = data;
   
-      const sender = await User.findOne({ name: name })
+      const sender = await User.findById(userID)
       const receiver = await User.findById(toUserID);
       if (!sender || !receiver) {
         console.error('Sender or receiver not found');
@@ -46,7 +35,7 @@ function handleSocket(server) {
   
       try {
         result = await message.save();
-        io.to(toUserID).to(socket.decoded._id).emit('chat message', { user: { username: sender.name }, message: msg });
+        io.to(toUserID).to(userID).emit('chat message', { user: { username: sender.name }, message: msg });
       } catch (err) {
         console.error('Error saving message:', err);
       }
@@ -74,7 +63,6 @@ function handleSocket(server) {
 
 
     //listing the users
-    const test = socket.decoded._id
     const users = [];
     for (let [id, socket] of io.of("/").sockets) {
       users.push({
@@ -82,7 +70,7 @@ function handleSocket(server) {
         name: socket.decoded.name,
       });
     }
-    socket.emit("users", users, test);
+    socket.emit("users", users, userID);
   }); 
 }
 
