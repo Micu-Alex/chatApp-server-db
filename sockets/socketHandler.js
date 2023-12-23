@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const { Message } = require("../models/message");
 const { User } = require("../models/user");
+const { Conversation } = require("../models/conversation")
 const auth = require("../middleware/auth");
 
 function handleSocket(server) {
@@ -14,30 +15,53 @@ function handleSocket(server) {
 
 
   io.on('connection', async (socket) => {
-    const userID = socket.decoded._id;
+    const senderID = socket.decoded._id;
 
-    socket.join(userID);
+    socket.join(senderID);
     socket.on('chat message', async (data) => {
       const { msg, toUserID } = data;
-  
-      const sender = await User.findById(userID)
-      const receiver = await User.findById(toUserID);
-      if (!sender || !receiver) {
-        console.error('Sender or receiver not found');
-        return;
+
+       // Find or create a conversation between sender and receiver
+      let conversation = await Conversation.findOne({
+        participants: { $all: [senderID, toUserID] }
+      });
+
+      if (!conversation) {
+        conversation = new Conversation({
+          participants: [senderID, toUserID],
+          messages: []
+        });
       }
-      const message = new Message({
-        message: msg, 
-        user: {username: sender.name},
-        toUser: { username: receiver.name}
-      })
-  
-  
+
+
       try {
-        result = await message.save();
-        io.to(toUserID).to(userID).emit('chat message', { user: { username: sender.name }, message: msg });
-      } catch (err) {
-        console.error('Error saving message:', err);
+        const sender = await User.findById(senderID)
+        const receiver = await User.findById(toUserID);
+       
+        if (!sender || !receiver) {
+          console.error('Sender or receiver not found');
+          return;
+        }
+
+
+        const message = new Message({
+          message: msg, 
+          user: {username: sender.name},
+          toUser: { username: receiver.name}
+        })
+      
+        const savedMessage = await message.save();
+        // Add the message to the conversation
+        conversation.messages.push(savedMessage._id);
+        await conversation.save();
+      
+        io.to(toUserID).to(senderID).emit('chat message', { user: {
+           username: sender.name },
+            message: msg 
+        });
+      }
+       catch (err) {
+        console.error('Error sending message:', err);
       }
       });
   
@@ -70,7 +94,7 @@ function handleSocket(server) {
         name: socket.decoded.name,
       });
     }
-    socket.emit("users", users, userID);
+    socket.emit("users", users, senderID);
   }); 
 }
 
