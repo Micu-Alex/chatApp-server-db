@@ -8,6 +8,7 @@ function handleSocket(server) {
   const io = new Server(server, {
     connectionStateRecovery: {}
   });
+  let extToUserID
 
   io.use((socket, next) => {
     auth(socket, next);
@@ -20,6 +21,7 @@ function handleSocket(server) {
     socket.join(senderID);
     socket.on('chat message', async (data) => {
       const { msg, toUserID } = data;
+      extToUserID = toUserID
 
        // Find or create a conversation between sender and receiver
       let conversation = await Conversation.findOne({
@@ -58,32 +60,42 @@ function handleSocket(server) {
         io.to(toUserID).to(senderID).emit('chat message', { sender: {
            username: sender.name },
             message: msg 
-        });
+        }, message._id);
       }
        catch (err) {
         console.error('Error sending message:', err);
       }
       });
   
+    // Emit previous messages upon a new connection
+      if (!socket.recovered) {
+        try {
+
+          const serverOffset = socket.handshake.auth.serverOffset || null;
+
+          const conversation = await Conversation.findOne({
+            participants: { $all: [senderID, extToUserID] }
+          }).populate('messages');
+
+          // console.log("conversation:",conversation);
+
+          if (conversation) {
+            const messages = conversation.messages.filter(message => (
+              serverOffset ? message._id > serverOffset : true), 
+              )
   
-    //   remake this part to support private messageing 
-    //     Emit previous messages upon a new connection
-    //   if (!socket.recovered) {
-    //     try {
-    //       const serverOffset = socket.handshake.auth.serverOffset || null;
-  
-    //       const query = serverOffset ? { _id: { $gt: serverOffset } } : {};
-    //       const messages = await Message.find(query).lean(); 
-  
-    //       messages.forEach((message) => {
-    //         socket.emit('chat message', message, message._id); 
-    //       });
-  
-    //       socket.recovered = true; 
-    //     } catch (err) {
-    //       console.error('Error retrieving messages:', err);
-    //     }
-    // }
+          messages.forEach((message) => {
+            socket.emit('chat message', {
+              sender: { username: message.sender.username },
+              message: message.message
+            }, message._id);
+          });
+          socket.recovered = true; 
+          }
+        } catch (err) {
+          console.error('Error retrieving messages:', err);
+        }
+    }
 
 
     //listing the users

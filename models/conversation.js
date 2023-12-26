@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Message = require('../models/message');
 
 const conversationSchema = new mongoose.Schema({
     participants: [{
@@ -8,7 +9,7 @@ const conversationSchema = new mongoose.Schema({
     }],
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Message'
+        ref: 'message'
     }]
 })
 
