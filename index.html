@@ -60,9 +60,8 @@
       //sending message
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if (input.value) {
+        if (input.value && selectedUser) {
           const toUserID = selectedUser 
-          console.log(toUserID);
           socket.emit('chat message', { msg: input.value, toUserID });
           input.value = '';
         }
@@ -78,9 +77,9 @@
       });
 
       socket.on('chat message', (data, serverOffset) => {
-        const { user, message } = data;
+        const { sender, message } = data;
         const item = document.createElement('li');
-        item.textContent = `${user.username}: ${message}`;
+        item.textContent = `${sender.username}: ${message}`;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;

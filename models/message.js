@@ -7,10 +7,10 @@ const messageSchema = new mongoose.Schema({
         minlenght: 1,
         maxlenght: 1000,
     },
-    user: {
+    sender: {
         username: String,
     },
-    toUser: {
+    receiver: {
         username: String,
     } 
 })

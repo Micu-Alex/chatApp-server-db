@@ -46,8 +46,8 @@ function handleSocket(server) {
 
         const message = new Message({
           message: msg, 
-          user: {username: sender.name},
-          toUser: { username: receiver.name}
+          sender: {username: sender.name},
+          receiver: { username: receiver.name}
         })
       
         const savedMessage = await message.save();
@@ -55,7 +55,7 @@ function handleSocket(server) {
         conversation.messages.push(savedMessage._id);
         await conversation.save();
       
-        io.to(toUserID).to(senderID).emit('chat message', { user: {
+        io.to(toUserID).to(senderID).emit('chat message', { sender: {
            username: sender.name },
             message: msg 
         });
@@ -66,8 +66,8 @@ function handleSocket(server) {
       });
   
   
-      //remake this part to support private messageing 
-        // Emit previous messages upon a new connection
+    //   remake this part to support private messageing 
+    //     Emit previous messages upon a new connection
     //   if (!socket.recovered) {
     //     try {
     //       const serverOffset = socket.handshake.auth.serverOffset || null;
