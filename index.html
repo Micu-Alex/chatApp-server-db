@@ -83,12 +83,16 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;
-  });
-  //listing users
-    socket.on("users", (users, test) => {
-      users.forEach((user) => {
-        user.self = user.userID === test;
       });
+
+
+
+      //listing users
+      socket.on("users", (users, senderID) => {
+        users.forEach((user) => {
+          user.self = user.userID === senderID;
+        });
+        
       // put the current user first, and then sort by username
       users.sort((a, b) => {
         if (a.self !== b.self) {
@@ -106,6 +110,7 @@
         }
         item.addEventListener('click', () => {
             selectedUser = user.userID; 
+            socket.emit("selectedUser", selectedUser)
         });
         item.classList.add('user-item')
         usersList.appendChild(item);
