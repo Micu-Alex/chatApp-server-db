@@ -20,12 +20,13 @@ function handleSocket(server) {
    
     
     socket.on("selectedUser", async (selectedUser) => {
-
-      socket.join(selectedUser);
+      socket.join(senderID);
 
       try {
 
         const serverOffset = socket.handshake.auth.serverOffset || null;
+        console.log("server offset on selecting user:",socket.handshake.auth);
+
 
         const conversation = await Conversation.findOne({
           participants: { $all: [senderID, selectedUser] }
@@ -37,12 +38,11 @@ function handleSocket(server) {
             )
 
         messages.forEach((message) => {
-          socket.emit('chat message', {
+          io.to(senderID).emit('chat message', {
             sender: { username: message.sender.username },
             message: message.message
           }, message._id);
         });
-        socket.recovered = true; 
         }
       } catch (err) {
         console.error('Error retrieving messages:', err);
@@ -51,7 +51,6 @@ function handleSocket(server) {
     
     socket.on('chat message', async (data) => {
       const { msg, toUserID } = data;
-
        // Find or create a conversation between sender and receiver
       let conversation = await Conversation.findOne({
         participants: { $all: [senderID, toUserID] }
@@ -85,17 +84,24 @@ function handleSocket(server) {
         // Add the message to the conversation
         conversation.messages.push(savedMessage._id);
         await conversation.save();
+
       
-        io.to(toUserID).to(senderID).emit('chat message', { sender: {
-           username: sender.name },
-            message: msg 
-        }, message._id);
+        io.to(toUserID).to(senderID).emit('chat message', { 
+          sender: {username: sender.name },
+            message: msg,
+        },message._id);
+        console.log(socket.handshake.auth);
       }
        catch (err) {
         console.error('Error sending message:', err);
       }
       });
 
+     // Emit previous messages upon a new connection
+      if (!socket.recovered) {
+          const serverOffset = socket.handshake.auth.serverOffset || null;
+          console.log("server offset on socket recovered",serverOffset);
+    }
 
     //listing the users
     const users = [];
