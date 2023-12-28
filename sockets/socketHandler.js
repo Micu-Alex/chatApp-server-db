@@ -19,6 +19,7 @@ function handleSocket(server) {
     const senderID = socket.decoded._id;
     let alreadySelectedUser = null
     let currentConversationRoom = null;
+    
     //select user
     socket.on("selectedUser", async (selectedUser) => {
       
@@ -38,12 +39,8 @@ function handleSocket(server) {
         socket.join(senderID)
         if (conversation) {
           const roomID = conversation._id.toString()
-          socket.join(roomID)
-          
+          socket.join(roomID)          
           currentConversationRoom = roomID;
-
-          console.log(socket.rooms);
-
           const messages = conversation.messages
 
           messages.forEach((message) => {
