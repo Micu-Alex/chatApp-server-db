@@ -27,9 +27,7 @@ function handleSocket(server) {
           participants: { $all: [senderID, selectedUser] }
         }).populate('messages');
 
-
-
-
+        socket.join(senderID)
         if (conversation) {
           const roomID = conversation._id.toString()
           socket.join(roomID)
@@ -40,7 +38,7 @@ function handleSocket(server) {
             )
 
         messages.forEach((message) => {
-          io.to(roomID).emit('chat message', {
+          io.to(senderID).emit('chat message', {
             sender: { username: message.sender.username },
             message: message.message
           }, message._id);
