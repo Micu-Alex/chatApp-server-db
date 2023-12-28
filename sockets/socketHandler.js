@@ -17,29 +17,42 @@ function handleSocket(server) {
 
   io.on('connection', async (socket) => {
     const senderID = socket.decoded._id;
-  
+    let alreadySelectedUser = null
+    let currentConversationRoom = null;
     //select user
     socket.on("selectedUser", async (selectedUser) => {
+      
+      if (alreadySelectedUser === selectedUser) return
+     
 
       try {
+        if (currentConversationRoom) {
+          socket.leave(currentConversationRoom);
+        }
+
         const conversation = await Conversation.findOne({
           participants: { $all: [senderID, selectedUser] }
         }).populate('messages');
+        
 
         socket.join(senderID)
         if (conversation) {
           const roomID = conversation._id.toString()
           socket.join(roomID)
-          console.log("room", socket.rooms);
+          
+          currentConversationRoom = roomID;
 
-          const messages = new Set(conversation.messages)
+          console.log(socket.rooms);
 
-        messages.forEach((message) => {
-          io.to(senderID).emit('chat message', {
-            sender: { username: message.sender.username },
-            message: message.message
+          const messages = conversation.messages
+
+          messages.forEach((message) => {
+            io.to(senderID).emit('chat message', {
+              sender: { username: message.sender.username },
+              message: message.message
+            });
           });
-        });
+          alreadySelectedUser = selectedUser
         }
       } catch (err) {
         console.error('Error retrieving messages:', err);

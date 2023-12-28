@@ -111,6 +111,7 @@
         item.addEventListener('click', () => {
             selectedUser = user.userID; 
             socket.emit("selectedUser", selectedUser)
+            messages.innerHTML = ''
         });
         item.classList.add('user-item')
         usersList.appendChild(item);
