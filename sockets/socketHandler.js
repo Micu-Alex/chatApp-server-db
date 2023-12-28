@@ -22,7 +22,6 @@ function handleSocket(server) {
     socket.on("selectedUser", async (selectedUser) => {
 
       try {
-        const serverOffset = socket.handshake.auth.serverOffset || null;
         const conversation = await Conversation.findOne({
           participants: { $all: [senderID, selectedUser] }
         }).populate('messages');
@@ -32,16 +31,14 @@ function handleSocket(server) {
           const roomID = conversation._id.toString()
           socket.join(roomID)
           console.log("room", socket.rooms);
-          const messages = 
-            conversation.messages.filter(message => (
-              serverOffset ? message._id > serverOffset : true)
-            )
+
+          const messages = new Set(conversation.messages)
 
         messages.forEach((message) => {
           io.to(senderID).emit('chat message', {
             sender: { username: message.sender.username },
             message: message.message
-          }, message._id);
+          });
         });
         }
       } catch (err) {
@@ -92,7 +89,7 @@ function handleSocket(server) {
         io.to(roomID).emit('chat message', { 
           sender: {username: sender.name },
             message: msg,
-        },message._id);
+        });
       }
        catch (err) {
         console.error('Error sending message:', err);
