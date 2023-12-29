@@ -6,7 +6,10 @@ const auth = require("../middleware/auth");
 
 function handleSocket(server) {
   const io = new Server(server, {
-    connectionStateRecovery: {}
+    connectionStateRecovery: {},
+    cors: {
+      origin: "http://localhost:5173"
+    }
   });
  
 
