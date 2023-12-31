@@ -7,8 +7,12 @@ const { join } = require('node:path');
 const { createServer } = require('node:http')
 const handleSocket = require('./sockets/socketHandler');
 const app = express()
+const cors = require('cors');
 const server = createServer(app);
 
+const corsOptions = {
+  origin: "http://localhost:5173"
+}
 
 mongoose.connect("mongodb://127.0.0.1/whatsapp-copy")
     .then(() => console.log(`connected to MongoDb`))
@@ -17,10 +21,11 @@ mongoose.connect("mongodb://127.0.0.1/whatsapp-copy")
 
 if (!config.get("jwtPrivateKey")) throw new Error("FATAL ERROR: jwtPrivateKey is not defined")
 
+app.use(cors(corsOptions));
 app.use(express.json())
 app.use("/api/users", users)
 app.use("/api/auth", auth)
-    
+
 
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
