@@ -131,17 +131,13 @@ function handleSocket(server) {
         io.emit("userOnline", updatedOnlineUsers);
     });
       
-      
-      
-      
-      
     //listing the users
     let allUsers = await User.find({}, { _id: 1, name: 1 })
     allUsers = allUsers.map(user => {
       const { _id, name  } = user; 
       return { userID: _id, name  }; 
   });
-    socket.emit("AllUsers", senderID, allUsers);
+    socket.emit("AllUsers",  allUsers, senderID,);
   }); 
 }
 
