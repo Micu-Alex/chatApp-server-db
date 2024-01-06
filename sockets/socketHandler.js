@@ -111,14 +111,19 @@ function handleSocket(server) {
 
 
     //listing the users
-    const users = [];
+    let allUsers = await User.find({}, { _id: 1, name: 1 })
+    allUsers = allUsers.map(user => {
+      const { _id, name  } = user; 
+      return { userID: _id, name  }; 
+  });
+    const onlineUsers = [];
     for (let [id, socket] of io.of("/").sockets) {
-      users.push({
+      onlineUsers.push({
         userID: socket.decoded._id,
         name: socket.decoded.name,
       });
     }
-    socket.emit("users", users, senderID);
+    socket.emit("users", onlineUsers, senderID, allUsers);
   }); 
 }
 
