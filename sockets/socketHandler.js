@@ -109,21 +109,39 @@ function handleSocket(server) {
       }
       });
 
+    //listing online users
+    const onlineUsers = [];
+    for (let [id, socket] of io.of("/").sockets) {
+        onlineUsers.push({
+            userID: socket.decoded._id,
+            name: socket.decoded.name,
+        });
+    }
+    io.emit("userOnline", onlineUsers);
 
+    // Additional event listener for handling user disconnection
+    socket.on('disconnect', async () => {
+        const updatedOnlineUsers = [];
+        for (let [id, socket] of io.of("/").sockets) {
+            updatedOnlineUsers.push({
+                userID: socket.decoded._id,
+                name: socket.decoded.name,
+            });
+        }
+        io.emit("userOnline", updatedOnlineUsers);
+    });
+      
+      
+      
+      
+      
     //listing the users
     let allUsers = await User.find({}, { _id: 1, name: 1 })
     allUsers = allUsers.map(user => {
       const { _id, name  } = user; 
       return { userID: _id, name  }; 
   });
-    const onlineUsers = [];
-    for (let [id, socket] of io.of("/").sockets) {
-      onlineUsers.push({
-        userID: socket.decoded._id,
-        name: socket.decoded.name,
-      });
-    }
-    socket.emit("users", onlineUsers, senderID, allUsers);
+    socket.emit("AllUsers", senderID, allUsers);
   }); 
 }
 
