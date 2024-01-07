@@ -1,3 +1,4 @@
+const { boolean } = require('joi');
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
@@ -12,7 +13,11 @@ const messageSchema = new mongoose.Schema({
     },
     receiver: {
         username: String,
-    } 
+    } ,
+    isSeen: {
+    type: Boolean,
+    default: false, 
+    }
 })
 
 const Message = mongoose.model("message", messageSchema)

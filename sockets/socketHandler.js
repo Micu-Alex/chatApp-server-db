@@ -88,7 +88,8 @@ function handleSocket(server) {
         const message = new Message({
           message: msg, 
           sender: {username: sender.name},
-          receiver: { username: receiver.name}
+          receiver: { username: receiver.name},
+          isSeen: false,
         })
       
         const savedMessage = await message.save();
