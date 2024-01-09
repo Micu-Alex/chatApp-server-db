@@ -13,10 +13,6 @@ const messageSchema = new mongoose.Schema({
     receiver: {
         username: String,
     } ,
-    isSeen: {
-    type: Boolean,
-    default: false, 
-    }
 })
 
 const Message = mongoose.model("message", messageSchema)

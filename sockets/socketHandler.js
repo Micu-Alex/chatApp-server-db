@@ -37,8 +37,6 @@ function handleSocket(server) {
         const conversation = await Conversation.findOne({
           participants: { $all: [curentUserID, selectedUser] }
         }).populate('messages');
-        
-
         socket.join(curentUserID)
         if (conversation) {
           const roomID = conversation._id.toString()
@@ -90,7 +88,6 @@ function handleSocket(server) {
           message: msg, 
           sender: {username: sender.name},
           receiver: { username: receiver.name},
-          isSeen: false,
         })
       
         const savedMessage = await message.save();
@@ -140,7 +137,8 @@ function handleSocket(server) {
       return { userID: _id, name  }; 
   });
     socket.emit("AllUsers",  allUsers, curentUserID,);
-  }); 
+  
+  }  ) 
 }
 
 module.exports = handleSocket;
