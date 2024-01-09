@@ -19,7 +19,7 @@ function handleSocket(server) {
 
 
   io.on('connection', async (socket) => {
-    const senderID = socket.decoded._id;
+    const curentUserID = socket.decoded._id;
     let alreadySelectedUser = null
     let currentConversationRoom = null;
     
@@ -35,11 +35,11 @@ function handleSocket(server) {
         }
 
         const conversation = await Conversation.findOne({
-          participants: { $all: [senderID, selectedUser] }
+          participants: { $all: [curentUserID, selectedUser] }
         }).populate('messages');
         
 
-        socket.join(senderID)
+        socket.join(curentUserID)
         if (conversation) {
           const roomID = conversation._id.toString()
           socket.join(roomID)          
@@ -47,7 +47,7 @@ function handleSocket(server) {
           const messages = conversation.messages
 
           messages.forEach((message) => {
-            io.to(senderID).emit('chat message', {
+            io.to(curentUserID).emit('chat message', {
               sender: { username: message.sender.username },
               message: message.message,
               isSeen: message.isSeen
@@ -68,16 +68,16 @@ function handleSocket(server) {
       
       try {
         let conversation = await Conversation.findOne({
-          participants: { $all: [senderID, selectedUser] }
+          participants: { $all: [curentUserID, selectedUser] }
        });
       
         if (!conversation) {
           conversation = new Conversation({
-          participants: [senderID, selectedUser],
+          participants: [curentUserID, selectedUser],
           messages: []
         });
       }      
-        const sender = await User.findById(senderID)
+        const sender = await User.findById(curentUserID)
         const receiver = await User.findById(selectedUser);
 
         if (!sender || !receiver) {
@@ -139,7 +139,7 @@ function handleSocket(server) {
       const { _id, name  } = user; 
       return { userID: _id, name  }; 
   });
-    socket.emit("AllUsers",  allUsers, senderID,);
+    socket.emit("AllUsers",  allUsers, curentUserID,);
   }); 
 }
 
