@@ -49,7 +49,8 @@ function handleSocket(server) {
           messages.forEach((message) => {
             io.to(senderID).emit('chat message', {
               sender: { username: message.sender.username },
-              message: message.message
+              message: message.message,
+              isSeen: message.isSeen
             });
           });
           alreadySelectedUser = selectedUser
