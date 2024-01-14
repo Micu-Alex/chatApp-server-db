@@ -1,3 +1,6 @@
 {
+    "mongodb": {
+        "password": ""
+      },
     "jwtPrivateKey": ""
 }

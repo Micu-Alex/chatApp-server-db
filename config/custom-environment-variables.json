@@ -1,3 +1,6 @@
 {
+    "mongodb": {
+        "password": "MONGODB_PASSWORD"
+      },
     "jwtPrivateKey": "chatApp_jwtPrivateKey"
 }
