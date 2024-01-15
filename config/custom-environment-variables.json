@@ -1,6 +1,6 @@
 {
     "mongodb": {
-        "mongo-adress": "MONGO_ADRESS"
+        "mongoAdress": "mongo_db"
       },
     "jwtPrivateKey": "chatApp_jwtPrivateKey"
 }

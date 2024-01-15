@@ -1,6 +1,6 @@
 {
     "mongodb": {
-        "mongo-adress": ""
+        "mongoAdress": ""
       },
     "jwtPrivateKey": ""
 }
