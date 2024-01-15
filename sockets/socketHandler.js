@@ -8,7 +8,7 @@ function handleSocket(server) {
   const io = new Server(server, {
     connectionStateRecovery: {},
     cors: {
-      origin: "http://localhost:5173"
+      origin: "*"
     }
   });
  
