@@ -44,11 +44,16 @@ function handleSocket(server) {
           currentConversationRoom = roomID;
           const messages = conversation.messages
 
+      
           messages.forEach((message) => {
             io.to(curentUserID).emit('chat message', {
               sender: { username: message.sender.username },
               message: message.message,
-              isSeen: message.isSeen
+              file: {
+                data: message.file.data, 
+                contentType: message.file.contentType,
+                fileName: message.file.fileName,
+              },
             });
           });
           alreadySelectedUser = selectedUser
@@ -61,9 +66,10 @@ function handleSocket(server) {
 
     //send message
     socket.on('chat message', async (data) => {
-      const { msg, toUserID: selectedUser } = data;
+      const { msg, toUserID: selectedUser, type, body, mimeType, fileName } = data;
+
+
        // Find or create a conversation between sender and receiver
-      
       try {
         let conversation = await Conversation.findOne({
           participants: { $all: [curentUserID, selectedUser] }
@@ -83,25 +89,57 @@ function handleSocket(server) {
           return;
         }
         
-      
+      //create and save message
+      if (type === 'file') {
+        // Handle file message
+        const base64Data = Buffer.from(body).toString('base64');
         const message = new Message({
-          message: msg, 
-          sender: {username: sender.name},
-          receiver: { username: receiver.name},
-        })
-      
+          file: {
+            data: base64Data, 
+            contentType: mimeType,
+            fileName: fileName,
+          },
+          sender: { username: sender.name },
+          receiver: { username: receiver.name },
+        });
         const savedMessage = await message.save();
-        // Add the message to the conversation
+        // Add the file message to the conversation
+
         conversation.messages.push(savedMessage._id);
         await conversation.save();
-        const roomID = conversation._id.toString()
-        socket.join(roomID)
-      
-      
-        io.to(roomID).emit('chat message', { 
-          sender: {username: sender.name },
-            message: msg,
+
+        const roomID = conversation._id.toString();
+        socket.join(roomID);
+
+        io.to(roomID).emit('chat message', {
+          sender: { username: sender.name },
+          file: {
+            data: base64Data,
+            contentType: mimeType,
+            fileName: fileName,
+          },
         });
+      } else {
+        // Handle text message
+        const message = new Message({
+          message: msg,
+          sender: { username: sender.name },
+          receiver: { username: receiver.name },
+        });
+        const savedMessage = await message.save();
+        // Add the text message to the conversation
+        conversation.messages.push(savedMessage._id);
+        
+            await conversation.save();
+        
+            const roomID = conversation._id.toString();
+            socket.join(roomID);
+        
+            io.to(roomID).emit('chat message', {
+              sender: { username: sender.name },
+              message: msg,
+            });
+      }
       }
        catch (err) {
         console.error('Error sending message:', err);
@@ -138,7 +176,7 @@ function handleSocket(server) {
   });
     socket.emit("AllUsers",  allUsers, curentUserID,);
   
-  }  ) 
+  }) 
 }
 
 module.exports = handleSocket;
