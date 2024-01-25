@@ -47,7 +47,7 @@ function handleSocket(server) {
       
           messages.forEach((message) => {
             io.to(curentUserID).emit('chat message', {
-              sender: { username: message.sender.username },
+              sender: { username: message.sender.username, senderID: message.sender.senderID },
               message: message.message,
               file: {
                 data: message.file.data, 
@@ -88,7 +88,9 @@ function handleSocket(server) {
           console.error('Sender or receiver not found');
           return;
         }
-        
+        //emmit notification to the user
+        io.to(receiver.id).emit("notification", sender.id)
+       
       //create and save message
       if (type === 'file') {
         // Handle file message
@@ -99,8 +101,8 @@ function handleSocket(server) {
             contentType: mimeType,
             fileName: fileName,
           },
-          sender: { username: sender.name },
-          receiver: { username: receiver.name },
+          sender: { username: sender.name,  senderID: sender.id },
+          receiver: { username: receiver.name,  receiverID: receiver.id },
         });
         const savedMessage = await message.save();
         // Add the file message to the conversation
@@ -111,8 +113,9 @@ function handleSocket(server) {
         const roomID = conversation._id.toString();
         socket.join(roomID);
 
+      
         io.to(roomID).emit('chat message', {
-          sender: { username: sender.name },
+          sender: { username: sender.name, senderID: sender.id },
           file: {
             data: base64Data,
             contentType: mimeType,
@@ -123,8 +126,8 @@ function handleSocket(server) {
         // Handle text message
         const message = new Message({
           message: msg,
-          sender: { username: sender.name },
-          receiver: { username: receiver.name },
+          sender: { username: sender.name, senderID: sender.id  },
+          receiver: { username: receiver.name, receiverID: receiver.id  },
         });
         const savedMessage = await message.save();
         // Add the text message to the conversation
@@ -136,7 +139,7 @@ function handleSocket(server) {
             socket.join(roomID);
         
             io.to(roomID).emit('chat message', {
-              sender: { username: sender.name },
+              sender: { username: sender.name,  senderID: sender.id },
               message: msg,
             });
       }

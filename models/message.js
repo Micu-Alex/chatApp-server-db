@@ -10,9 +10,11 @@ const messageSchema = new mongoose.Schema({
     },
     sender: {
         username: String,
+        senderID:  mongoose.Schema.Types.ObjectId
     },
     receiver: {
         username: String,
+        receiverID:  mongoose.Schema.Types.ObjectId
     },
     file: {
         data: { type: String, required: false },
