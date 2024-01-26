@@ -23,6 +23,7 @@ function handleSocket(server) {
     let alreadySelectedUser = null
     let currentConversationRoom = null;
     
+    socket.join(curentUserID)
     //select user
     socket.on("selectedUser", async (selectedUser) => {
       
@@ -37,7 +38,6 @@ function handleSocket(server) {
         const conversation = await Conversation.findOne({
           participants: { $all: [curentUserID, selectedUser] }
         }).populate('messages');
-        socket.join(curentUserID)
         if (conversation) {
           const roomID = conversation._id.toString()
           socket.join(roomID)          
