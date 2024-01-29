@@ -3,6 +3,7 @@ const { Message } = require("../models/message");
 const { User } = require("../models/user");
 const { Conversation } = require("../models/conversation")
 const auth = require("../middleware/auth");
+const { Notification } = require("../models/notification");
 
 function handleSocket(server) {
   const io = new Server(server, {
@@ -24,11 +25,24 @@ function handleSocket(server) {
     let currentConversationRoom = null;
     
     socket.join(curentUserID)
+
+    // seend unseen notifications
+    const notifications = await Notification.find({
+      receiverID: curentUserID
+    })
+    notifications.forEach((noti) => { 
+      io.to(curentUserID).emit("notification", noti.senderID)
+    })
+
+
     //select user
     socket.on("selectedUser", async (selectedUser) => {
-      
       if (alreadySelectedUser === selectedUser) return
      
+      //delete seen notifications
+      await Notification.deleteMany({
+      senderID: selectedUser
+      })
 
       try {
         if (currentConversationRoom) {
@@ -88,7 +102,14 @@ function handleSocket(server) {
           console.error('Sender or receiver not found');
           return;
         }
-        //emmit notification to the user
+        //save new notification
+        await new Notification({
+          receiverID: receiver.id, 
+          senderID: sender.id
+        }).save()
+
+
+        //emmit new notification to the user
         io.to(receiver.id).emit("notification", sender.id)
        
       //create and save message
