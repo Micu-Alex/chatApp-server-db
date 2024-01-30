@@ -44,6 +44,9 @@ function handleSocket(server) {
       senderID: selectedUser
       })
 
+
+      
+
       try {
         if (currentConversationRoom) {
           socket.leave(currentConversationRoom);
@@ -200,6 +203,15 @@ function handleSocket(server) {
   });
     socket.emit("AllUsers",  allUsers, curentUserID,);
   
+    socket.on("user typing", data => {
+      const {Typing, selectedUser} = data
+      if (Typing) {
+        socket.to(selectedUser).emit("user typing", curentUserID)
+      } else {
+        socket.to(selectedUser).emit("user typing", "")
+      }
+    })
+
   }) 
 }
 
