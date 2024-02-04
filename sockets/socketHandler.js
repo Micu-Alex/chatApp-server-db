@@ -41,6 +41,7 @@ function handleSocket(server) {
      
       //delete seen notifications
       await Notification.deleteMany({
+      receiverID: curentUserID,
       senderID: selectedUser
       })
 
