@@ -9,7 +9,7 @@ function handleSocket(server) {
   const io = new Server(server, {
     connectionStateRecovery: {},
     cors: {
-      origin: "*"
+      origin: "https://chat-application-delta-indol.vercel.app"
     }
   });
  
