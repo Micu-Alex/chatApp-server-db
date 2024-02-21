@@ -10,6 +10,6 @@ require("./startup/config")();
 
 handleSocket(server) 
 
-const port = 3000
+const port = `0.0.0.0`
 server.listen(port, () => console.log(`app listening on ${port}`))
 
